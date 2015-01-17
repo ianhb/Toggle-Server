@@ -11,91 +11,83 @@ import static java.awt.event.KeyEvent.*;
 public class SystemController {
 
     Robot robot;
-    MouseController mouseController;
 
     public SystemController() throws AWTException {
         robot = new Robot();
-        mouseController = null;
     }
 
     public void executeCommand(String command, String message) {
         switch (command) {
-            case CommandListener.MOUSE_CLICK:
-                System.out.println(Integer.parseInt(message));
-                clickMouse(Integer.parseInt(message));
-                break;
-            case CommandListener.MOUSE_RELEASE:
-                releaseMouse(Integer.parseInt(message));
-                break;
-            case CommandListener.TEXT:
+            case Constants.TEXT:
                 enterText(message);
                 break;
-            case CommandListener.MOUSE_MOVE:
+            case Constants.SPECIAL:
+                buttonPress(message);
+                break;
+            case Constants.MOUSE_MOVE:
                 int x = Integer.parseInt(message.substring(0, message.indexOf(":")));
                 int y = Integer.parseInt(message.substring(message.indexOf(":") + 1));
-                if (mouseController != null) {
-                    mouseController.changeVelocities(x, y);
-                } else {
-                    mouseController = new MouseController(robot, x, y);
+                int smoother = 5;
+                for (int i = 0; i < smoother; i++) {
+                    int curX = MouseInfo.getPointerInfo().getLocation().x;
+                    int curY = MouseInfo.getPointerInfo().getLocation().y;
+                    robot.mouseMove(curX + (x / smoother), curY + (y / smoother));
+                    robot.delay(100 / smoother);
                 }
                 break;
-            case CommandListener.MOUSE_STOP:
-                if (mouseController != null) {
-                    mouseController.stopMoving();
-                    mouseController = null;
-                }
-                break;
-            case CommandListener.MOUSE_SCROLL:
+            case Constants.MOUSE_SCROLL:
                 int scroll = Integer.parseInt(message);
-                if (scroll == 0 && mouseController != null) {
-                    mouseController.stopScrolling();
-                    mouseController = null;
-                } else if (mouseController != null) {
-                    mouseController.changeScrolling(Integer.parseInt(message));
-                } else {
-                    mouseController = new MouseController(robot, 0, 0);
-                    mouseController.changeScrolling(scroll);
-                }
+                robot.mouseWheel(scroll);
                 break;
         }
     }
 
-
-    public void clickMouse(int buttonNumber) {
-        if (buttonNumber == 1) {
-            buttonNumber = InputEvent.BUTTON1_MASK;
-        } else if (buttonNumber == 2) {
-            buttonNumber = InputEvent.BUTTON2_MASK;
-        } else {
-            return;
+    private void buttonPress(String message) {
+        int breakPoint = message.indexOf(":");
+        String key = message.substring(0, breakPoint);
+        int type = Integer.parseInt(message.substring(breakPoint + 1));
+        int typekey = 0;
+        switch (key) {
+            case Constants.BACK:
+                typekey = VK_BACK_SPACE;
+                break;
+            case Constants.ENTER:
+                typekey = VK_ENTER;
+                break;
+            case Constants.SHIFT:
+                typekey = VK_SHIFT;
+                break;
+            case Constants.ALT:
+                typekey = VK_ALT;
+                break;
+            case Constants.CTRL:
+                typekey = VK_CONTROL;
+                break;
+            case Constants.DELETE:
+                typekey = VK_DELETE;
+                break;
+            case Constants.LEFT:
+                typekey = InputEvent.BUTTON1_MASK;
+                break;
+            case Constants.RIGHT:
+                typekey = InputEvent.BUTTON2_MASK;
+                break;
         }
-
-        robot.mousePress(buttonNumber);
-        robot.delay(100);
-    }
-
-    public void releaseMouse(int buttonNumber) {
-        if (buttonNumber == 1) {
-            buttonNumber = InputEvent.BUTTON1_MASK;
-        } else if (buttonNumber == 2) {
-            buttonNumber = InputEvent.BUTTON2_MASK;
-        } else {
-            return;
+        if (type == 1) {
+            robot.keyPress(typekey);
+        } else if (type == 2) {
+            robot.keyRelease(typekey);
+        } else if (type == 4) {
+            robot.mousePress(typekey);
+        } else if (type == 5) {
+            robot.mouseRelease(typekey);
         }
-
-        robot.mouseRelease(buttonNumber);
-        robot.delay(100);
     }
 
     public void enterText(String text) {
-        doType(VK_CONTROL, VK_A);
-        robot.delay(100);
-        doType(VK_DELETE);
-
         for (char c : text.toCharArray()) {
             type(c);
         }
-        doType(VK_ENTER);
     }
 
     private void doType(int... keyCodes) {
@@ -106,7 +98,6 @@ public class SystemController {
         if (length == 0) {
             return;
         }
-
         robot.keyPress(keyCodes[offset]);
         doType(keyCodes, offset + 1, length - 1);
         robot.keyRelease(keyCodes[offset]);
@@ -407,6 +398,5 @@ public class SystemController {
                 break;
         }
     }
-
 
 }

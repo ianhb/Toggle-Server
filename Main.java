@@ -5,13 +5,11 @@
  */
 public class Main {
     public static void main(String[] args) {
-        CommandListener cm = null;
         while (true) {
             try {
                 Daemon daemon = new Daemon();
                 daemon.run();
-                cm = new CommandListener(daemon.ip);
-
+                new CommandListener();
             } catch (Exception e) {
                 e.printStackTrace();
             }

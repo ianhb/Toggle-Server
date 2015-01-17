@@ -9,13 +9,6 @@ import java.net.Socket;
  */
 public class CommandListener {
 
-    public static final String MOUSE_CLICK = "CLICK";
-    public static final String MOUSE_RELEASE = "RELEASE";
-    public static final String MOUSE_SCROLL = "SCROLL";
-    public static final String MOUSE_MOVE = "MOVE";
-    public static final String MOUSE_STOP = "STOP";
-    public static final String TEXT = "TEXT";
-
     public static final String CLOSE_CONNECTION = "CLOSE";
     public static final String LOGIN = "LOGIN";
 
@@ -25,7 +18,7 @@ public class CommandListener {
 
     SystemController controller;
 
-    public CommandListener(String ip) {
+    public CommandListener() {
         try {
             System.out.println("Controller starting");
             controller = new SystemController();
@@ -34,12 +27,11 @@ public class CommandListener {
             Socket socket = serverSocket.accept();
             System.out.println("Sockets Opened");
             System.out.println("Starting Connection");
-            CommandListener.Connection connection = new Connection(socket);
+            new Connection(socket);
             serverSocket.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     class Connection extends Thread {
