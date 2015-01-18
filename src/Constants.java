@@ -19,5 +19,4 @@ public class Constants {
     public static final String ALT = "ALT";
     public static final String CTRL = "CTRL";
 
-
 }

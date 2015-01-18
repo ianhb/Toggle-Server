@@ -14,6 +14,11 @@ public class Daemon {
     public static final String RESPONSE = "DISCOVER_REMOTESERVER_RESPONSE";
 
     public String ip;
+    public String serverName;
+
+    public Daemon(String servername) {
+        serverName = servername;
+    }
 
     public String run() {
         DatagramSocket socket;
@@ -24,24 +29,30 @@ public class Daemon {
             socket.setBroadcast(true);
 
             while (true) {
-                System.out.println("Ready to receive broadcasts");
+                boolean requestSeen = false;
+                byte[] receiveBuffer;
+                DatagramPacket recPacket;
+                String message;
+                while (!requestSeen) {
+                    System.out.println("Ready to receive broadcasts");
 
-                byte[] receiveBuffer = new byte[15000];
-                DatagramPacket recPacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
-                socket.receive(recPacket);
+                    receiveBuffer = new byte[15000];
+                    recPacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+                    socket.receive(recPacket);
 
-                System.out.println("Received packet from: " + recPacket.getAddress());
-                String message = new String(recPacket.getData()).trim();
-                System.out.println("Packet message: " + message);
+                    System.out.println("Received packet from: " + recPacket.getAddress());
+                    message = new String(recPacket.getData()).trim();
+                    System.out.println("Packet message: " + message);
 
-                if (message.equals(REQUEST)) {
-                    byte[] sendData = RESPONSE.getBytes();
-                    DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, recPacket.getAddress(), recPacket.getPort());
-                    socket.send(sendPacket);
+                    if (message.equals(REQUEST)) {
+                        byte[] sendData = (RESPONSE + ":" + serverName).getBytes();
+                        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, recPacket.getAddress(), recPacket.getPort());
+                        socket.send(sendPacket);
 
-                    System.out.println("Response packet sent to: " + recPacket.getAddress());
+                        System.out.println("Response packet sent to: " + recPacket.getAddress() + " Message: " + new String(sendData));
+                        requestSeen = true;
+                    }
                 }
-
                 awaitingPair = true;
                 while (awaitingPair) {
                     try {
@@ -49,7 +60,6 @@ public class Daemon {
 
                         receiveBuffer = new byte[15000];
                         recPacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
-                        socket.setSoTimeout(15000);
                         socket.receive(recPacket);
 
                         System.out.println("Received packet from: " + recPacket.getAddress());
@@ -73,9 +83,5 @@ public class Daemon {
             e.printStackTrace();
             return null;
         }
-    }
-
-    private static class DaemonHolder {
-        private static final Daemon INSTANCE = new Daemon();
     }
 }
