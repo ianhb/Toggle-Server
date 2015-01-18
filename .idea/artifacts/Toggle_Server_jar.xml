@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Toggle Server:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Toggle_Server_jar</output-path>
+    <root id="archive" name="Toggle Server.jar">
+      <element id="module-output" name="Toggle Server" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/gson-2.3.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
