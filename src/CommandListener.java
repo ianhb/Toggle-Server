@@ -30,6 +30,7 @@ public class CommandListener {
             controller = new SystemController();
             System.out.println("Opening Sockets");
             ServerSocket serverSocket = new ServerSocket(SOCKET);
+            serverSocket.setSoTimeout(2000);
             Socket socket = serverSocket.accept();
             System.out.println("Sockets Opened");
             System.out.println("Starting Connection");
