@@ -1,7 +1,10 @@
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
+import java.util.Properties;
 
 /**
  * Network Discovery daemon that listens for client requests and handles pairing with the device
@@ -34,6 +37,11 @@ public class Daemon {
                 DatagramPacket recPacket;
                 String message;
                 while (!requestSeen) {
+                    InputStream input = new FileInputStream("config.properties");
+                    Properties prop = new Properties();
+                    prop.load(input);
+                    serverName = prop.getProperty(SettingsWindow.serverNamePreferences);
+                    input.close();
                     System.out.println("Ready to receive broadcasts");
 
                     receiveBuffer = new byte[15000];
@@ -48,7 +56,6 @@ public class Daemon {
                         byte[] sendData = (RESPONSE + ":" + serverName).getBytes();
                         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, recPacket.getAddress(), recPacket.getPort());
                         socket.send(sendPacket);
-
                         System.out.println("Response packet sent to: " + recPacket.getAddress() + " Message: " + new String(sendData));
                         requestSeen = true;
                     }

@@ -55,6 +55,31 @@ public class SettingsWindow {
         }
     }
 
+    public void changeSettings() {
+        try {
+            input = new FileInputStream("config.properties");
+            prop.load(input);
+            serverName = prop.getProperty(serverNamePreferences);
+            serverName = (String) JOptionPane.showInputDialog(null, "Server Name: ", null, JOptionPane.PLAIN_MESSAGE, null, null, serverName);
+            output = new FileOutputStream("config.properties");
+            prop.setProperty(serverNamePreferences, serverName);
+            prop.store(output, null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (output != null) {
+                    output.close();
+                }
+                if (input != null) {
+                    input.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public String getServerName() {
         return serverName;
     }
