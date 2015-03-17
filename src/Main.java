@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.net.URL;
 
 /**
  * Main execution class
@@ -30,7 +31,8 @@ public class Main {
         if (SystemTray.isSupported()) {
             final PopupMenu popupMenu = new PopupMenu();
             try {
-                final TrayIcon trayIcon = new TrayIcon(new ImageIcon("image/logo.png", "omt").getImage(), "Toggle Server");
+                URL url = ClassLoader.getSystemClassLoader().getResource("logo.png");
+                final TrayIcon trayIcon = new TrayIcon(new ImageIcon(url).getImage(), "Toggle Server");
                 final SystemTray tray = SystemTray.getSystemTray();
                 trayIcon.setImageAutoSize(true);
                 MenuItem changeNameItem = new MenuItem("Change Server Name");
